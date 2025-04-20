@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IN GAME</title>
+</head>
+<body>
+    <link rel="stylesheet" href="{% static 'css/hud.css' %}">
+    <script src="{% static 'js/main.js' %}"></script>
+
+    {% comment %} BACKGROUND IMAGE SELECTION {% endcomment %}
+
+    {% if region.biome == "Aquatic" %}<img id="bg" src="../../../media/ocean.jpg" alt="Aquatic"/>
+    {% elif region.biome == "Desert" %}<img id="bg" src="../../../media/desert.jpg" alt="Desert"/>
+    {% elif region.biome == "Forest" %}<img id="bg" src="../../../media/forest.jpg" alt="Forest"/>
+    {% elif region.biome == "Mountain" %}<img id="bg" src="../../../media/mountain.jpg" alt="Mountain"/>
+    {% elif region.biome == "Plain" %}<img id="bg" src="../../../media/plain.jpg" alt="Plain"/>
+    {% else %}<img id="bg" src="{{ region.landscape.url }}" alt="Shelter"/>{% endif%}
+
+    {% comment %} ACTION MENU {% endcomment %}
+
+    <section id="action">
+        <button style="background-color: rgb(0, 13, 50);" class="icon" onclick="openmap()"/>🌍</button>
+        <button style="background-color: rgb(202, 151, 0);" class="icon" onclick="openinv()"/>🛒</button>
+        <button style="background-color: black;" class="icon" onclick="openrest()"/>💤</button>
+        {% if region.farm %}
+        <button style="background-color: rgb(6, 44, 0);" class="icon" onclick="openfarm()"/>🌾</button>
+        {% endif %}
+        {% if region.build %}
+        <button style="background-color: rgb(41, 24, 0);" class="icon" onclick="openbuild()"/>🧰</button>
+        {% endif %}
+    </section>
+    
+    {% comment %} JOURNAL {% endcomment %}
+
+    <div id="journal">
+        <p id="entry">{{ player.journal }} </p>   
+    </div>
+
+    {% comment %} REGION LEADER {% endcomment %}
+
+    {% if region.leader %}
+        <section id="leads">
+            <img id="lea" src="{{ region.leadport.url }}" alt="Leader"/>
+            <button id="speakto" onclick="leader(lead, mark)">LEADER</button>
+        </section>
+    {% endif %}
+    {% if region.merchant %}
+        <button id="market" onclick="merch(lead, mark)">MARKET PLACE</button>
+    {% elif region.doctor %}
+        <button id="market" onclick="merch(lead, mark)">MARKET PLACE</button>
+    {% elif region.dealer %}
+        <button id="market" onclick="merch(lead, mark)">MARKET PLACE</button>
+    {% elif region.mecano %}
+        <button id="market" onclick="merch(lead, mark)">MARKET PLACE</button>
+    {% endif %}
+    {% comment %} NPCS SECTION {% endcomment %}
+
+    <section style="display:none" id="lead" class="npc">  
+        <span id="speech">" Welcome, what can I do for you ? "</span>
+    </section>
+    <section id="mark" class="npc" style="display:none">
+        <form id="trade" action="" method="post">
+            {% csrf_token %}
+            <table>
+                <tr>
+                    {% if region.merchant %}
+                    <td class="portrait">
+                        <img class="trader" src="{{ region.mercport.url }}" alt="Merchant"/>     
+                    </td>
+                    <td class="goods">
+                        <div class="prods">
+                            <label for="food" class="res">🍎 = 1 coin</label>
+                            <input id="food" class="trade" type="number" name="food" value="0">
+                            <label for="wood" class="res">🌲 = 2 coins</label>
+                            <input id="wood" class="trade" type="number" name="wood" value="0">
+                            <label for="metal" class="res">🧱 = 5 coins</label>
+                            <input id="metal" class="trade" type="number" name="metal" value="0">
+                            <label for="fuel" class="res">🛢 = 10 coins</label>
+                            <input id="fuel" class="trade" type="number" name="fuel" value="0">
+                        </div>
+                    </td>   
+                    {% endif %}    
+                    {% if region.doctor %}
+                    <td class="portrait">
+                        <img class="trader" src="{{ region.docport.url }}" alt="Doctor"/>
+                    </td>
+                    <td class="goods">
+                        <div class="prods">
+                            <label for="bandage" class="res">🩹 = 5 coins</label>
+                            <input id="bandage" class="trade" type="number" name="bandage" value="0">
+                            <label for="med" class="res">💊 = 10 coins</label>
+                            <input id="med" class="trade" type="number" name="med" value="0">
+                            <label for="drug" class="res">💉 = 20 coins</label>
+                            <input id="drug" class="trade" type="number" name="drug" value="0">
+                            <label for="cure" class="res">🧪 = 100 coins</label>
+                            <input id="cure" class="trade" type="number" name="cure" value="0">                     
+                        </div> 
+                    </td>
+                    {% endif %}
+                    {% if region.dealer %}
+                    <td class="portrait">
+                        <img class="trader" src="{{ region.dealport.url }}" alt="Dealer"/>
+                    </td>
+                    <td class="goods">
+                        <div class="prods">
+                            <label for="katana" class="res">⚔️ = 200 coins </label>
+                            <input id="katana" class="trade" type="number" name="katana" value="0">
+                            <label for="shotgun" class="res">🔫 = 500 coins</label>
+                            <input id="shotgun" class="trade" type="number" name="shotgun" value="0">
+                        </div>
+                    </td>
+                    {% endif %}
+                    {% if region.mecano %}
+                    <td class="portrait">
+                        <img class="trader" src="{{ region.mecaport.url }}" alt="Mecano"/>
+                    </td>
+                    <td class="goods">
+                        <div class="prods">
+                            <label for="arm" class="res">🛡️ = 100 coins</label>
+                            <input id="arm" class="trade" type="number" name="armor" value="0">
+                            <label for="imp" class="res">🧬 = 1000 coins</label>
+                            <input id="imp" class="trade" type="number" name="implant" value="0">
+                        </div> 
+                    </td>    
+                    {% endif %}
+                </tr>
+            </table>
+            <input id="tradeb" type="submit" value="TRADE">
+        </form>
+        <div id="speech">"Hello, if you're looking to trade resources, you're at the right spot !"</div>
+    </section>
+
+    {% comment %} PARTY MEMBER INFOS {% endcomment %}
+
+    <section id="playerinfos" style="display:none">
+        <table>
+            <tr>
+                <td id="stats">
+                    <div id="mind">{{ player.mind }}</div>
+                    <div id="body">{{ player.body }}</div>
+                </td>
+                <td id="stats2">
+                    <div id="spec">{{ player.name }} [ {{ player.bonus1 }} - {{ player.bonus2 }} - {{ player.malus1 }} - {{ player.malus2 }} ]</div>
+                    <img id="avatar" src="{{ player.avatar.url }}" alt="{{ player.name }}"/>
+                    <form id="useitem" action="" method="post">
+                        {% csrf_token %}
+                        <div id="cond">
+                            {% if player.wound %}
+                            <input id="heal" class="status" type="submit" name="wound" value="🩸" onclick="confirm(cure,dope,fist,sto,armor,useitem)"></input>
+                            {% else %}
+                            <button class="status">❤️</button>
+                            {% endif%}
+                            {% if player.sick %}
+                            <input id="cure" class="status" type="submit" name="sick" value="🤢" onclick="confirm(heal,dope,fist,sto,armor,useitem)"></input>
+                            {% else %}
+                            <button class="status">💪</button>
+                            {% endif%}
+                            {% if player.trauma %}
+                            <input id="dope" class="status" type="submit" name="trauma" value="😨" onclick="confirm(heal,cure,fist,sto,armor,useitem)"></input>
+                            {% else %}
+                            <button class="status">🙂</button>
+                            {% endif%}
+                        </div>
+                        <div id="hp">
+                            {% if player.hp >= 5 %}
+                                <div id="okay">{{ player.hp }}</div>
+                            {% elif player.hp >= 3 %}
+                                <div id="need">{{ player.hp }}</div>
+                            {% elif player.hp >= 1 %}
+                                <div id="bad">{{ player.hp }}</div>
+                            {% else %}
+                                <div id="dead">💀</div>
+                            {% endif %}
+                        </div>
+                            <input id="armor" type="submit" name="equiparm" value="{{ player.armor }}" onclick="confirm(heal,cure,dope,fist,sto,useitem)"></input>
+                        <div id="weapons">
+                            {% if player.katana %}
+                                <button id="kata" class="weap">⚔️ melee weapon is equiped</button>
+                            {% else %}
+                                <input id="fist" class="weap" type="submit" name="equipkat" value="👊" onclick="confirm(heal,cure,dope,sto,armor,useitem)"></input>
+                            {% endif %}
+                            {% if player.shotgun %}
+                                <button id="shot" class="weap">🏹 range weapon is equiped</button>
+                            {% else %}
+                                <input id="sto" class="weap" type="submit" name="equipshot" value="❌" onclick="confirm(heal,cure,fist,dope,armor,useitem)"></input>
+                            {% endif %}
+                        </div>
+                    </form>
+                </td>        
+        </table>  
+    </section>
+    {% for x in group %}
+        <section id="{{ x.name }}" class="group" style="display:none">
+            <table>
+                <tr>
+                    <td id="stats">
+                        <div id="mind">{{ x.mind }}</div>
+                        <div id="body">{{ x.body }}</div>
+                    </td>
+                    <td id="stats2">
+                        <div id="spec">{{ x.name }} [ {{ x.bonus1 }} - {{ x.bonus2 }} - {{ x.malus1 }} - {{ x.malus2 }} ]</div>
+                        <img id="avatar" src="{{ x.avatar.url }}" alt="{{ x.name }}"/>
+                        <form id="useitem" action="" method="post">
+                            {% csrf_token %}
+                            <div id="cond">
+                                {% if x.wound %}
+                                <input id="heal" class="status" type="submit" name="wound" value="🩸" onclick="confirm(cure,dope,fist,sto,armor,useitem)"></input>
+                                {% else %}
+                                <button class="status">❤️</button>
+                                {% endif%}
+                                {% if x.sick %}
+                                <input id="cure" class="status" type="submit" name="sick" value="🤢" onclick="confirm(heal,dope,fist,sto,armor,useitem)"></input>
+                                {% else %}
+                                <button class="status">💪</button>
+                                {% endif%}
+                                {% if x.trauma %}
+                                <input id="dope" class="status" type="submit" name="trauma" value="😨" onclick="confirm(heal,cure,fist,sto,armor,useitem)"></input>
+                                {% else %}
+                                <button class="status">🙂</button>
+                                {% endif%}
+                            </div>
+                            <div id="hp">
+                                {% if x.hp >= 5 %}
+                                    <div id="okay">{{ x.hp }}</div>
+                                {% elif x.hp >= 3 %}
+                                    <div id="need">{{ x.hp }}</div>
+                                {% elif x.hp >= 1 %}
+                                    <div id="bad">{{ x.hp }}</div>
+                                {% else %}
+                                    <div id="dead">💀</div>
+                                {% endif %}
+                            </div>
+                                <input id="armor" type="submit" name="equiparm" value="{{ x.armor }}" onclick="confirm(heal,cure,dope,fist,sto,useitem)"></input>
+                            <div id="weapons">
+                                {% if x.katana %}
+                                    <button id="kata" class="weap">⚔️ melee weapon is equiped</button>
+                                {% else %}
+                                    <input id="fist" class="weap" type="submit" name="equipkat" value="👊" onclick="confirm(heal,cure,dope,sto,armor,useitem)"></input>
+                                {% endif %}
+                                {% if player.shotgun %}
+                                    <button id="shot" class="weap">🏹 range weapon is equiped</button>
+                                {% else %}
+                                    <input id="sto" class="weap" type="submit" name="equipshot" value="❌" onclick="confirm(heal,cure,fist,dope,armor,useitem)"></input>
+                                {% endif %}
+                            </div>
+                        </form>
+                    </td>        
+            </table> 
+        </section>
+    {% endfor %}
+    <section id="party">    
+        <div class="member">
+            <div class="hp">
+                {% if player.hp >= 5 %}
+                    <div class="ok">{{ player.hp }}</div>
+                {% elif player.hp >= 3 %}
+                    <div class="ne">{{ player.hp }}</div>
+                {% elif player.hp >= 1 %}
+                    <div class="ba">{{ player.hp }}</div>
+                {% else %}
+                    <div class="de">💀</div>
+                {% endif %}
+            </div>
+            <input id="player" type="image" src="{{ player.avatar.url }}" onclick="show(playerinfos)"/>   
+        </div>
+        {% for x in group %}
+            <div class="member">
+                <div class="hp">
+                    {% if x.hp >= 5 %}
+                        <div class="ok">{{ x.hp }}</div>
+                    {% elif x.hp >= 3 %}
+                        <div class="ne">{{ x.hp }}</div>
+                    {% elif x.hp >= 1 %}
+                        <div class="ba">{{ x.hp }}</div>
+                    {% else %}
+                        <div class="de">💀</div>
+                    {% endif %}
+                </div>
+                <input id="player" type="image" src="{{ x.avatar.url }}" onclick="show({{ x.name }})"/>   
+            </div>
+        {% endfor %}
+    </section>
+
+    {% comment %} LOGOUT {% endcomment %}
+
+    <form class="logout" action="{% url 'users:logout' %}" method="post">
+        {% csrf_token %}
+        <button id="logout">X</button>
+    </form>
+
+    {% comment %} PLAYER'S COORDINATES {% endcomment %}
+
+    <button id="fol">followers : {{ player.surv }}</button>
+
+    <div id="loc">{{ player.occupied }} - {{ player.x }} / {{ player.y }}</div>
+    
+</body>
+</html>

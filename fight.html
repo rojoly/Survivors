@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FIGHT</title>
+    <link rel="stylesheet" href="{% static 'css/fight.css' %}">
+</head>
+<body>
+    
+    {% if start %}
+    <span class="infos">
+        <h1>Pick a character to place :</h1>
+        <br>
+        <form id="select" action="" method="post">
+        {% csrf_token %}
+            {% for group in group %}
+                {% if group.start %}
+                    <input class="rad" type="radio" name="pick" value="{{ group.pk }}">
+                    <label for="pick" class="res">{{ group.name }}</label>
+                {% endif %}
+            {% endfor %}
+            <br>
+            <input class="rad" type="radio" name="pick" value="{{ player.pk }}">
+            <label for="pick" class="res">{{ player.name }}</label>
+            <input id="confirm" type="submit" value="confirm selection">
+        </form>
+        
+        <br>
+        <span>
+            Once you have chosen a character, click on the tale you want to place him. <br>
+            Your character is the last to be placed, <br>
+        </span>
+        <h2>currently selected :</h2>
+        {% if player.selected %}
+            <h1>{{ player.name }}</h1>
+        {% endif %}
+        {% for group in group %}
+            {% if group.selected %}
+                <h1>{{ group.name }}</h1>
+            {% endif %}
+        {% endfor %}
+    </span>
+    {% elif turn %}
+        <span class="infos">
+            <h1>Make a choice !</h1>
+            <h2>FIRST : Select a character :</h2>
+            <form id="select" action="" method="post">
+            {% csrf_token %}
+                {% for group in group %}
+                    {% if group.turn %}
+                        <input class="rad" type="radio" name="pick" value="{{ group.pk }}">
+                        <label for="pick" class="res">{{ group.name }}</label>
+                    {% endif %}
+                {% endfor %}
+                {% if player.turn %}
+                <input class="rad" type="radio" name="pick" value="{{ player.pk }}">
+                <label for="pick" class="res">{{ player.name }}</label>
+                {% endif %}
+                <input id="confirm" type="submit" value="confirm selection">
+                <h2>currently selected :</h2>
+                {% if player.selected %}
+                    <h1>{{ player.name }}</h1>
+                {% endif %}
+                {% for group in group %}
+                    {% if group.selected %}
+                        <h1>{{ group.name }}</h1>
+                    {% endif %}
+                {% endfor %}
+                <h2>SECOND : Select an action :</h2>
+                <input id="move" class="rad" type="radio" name="action" value="move">
+                <label for="move" class="res">MOVE 💨</label>
+                <input id="melee" class="rad" type="radio" name="action" value="hit">
+                <label for="melee" class="res">HIT 🥊</label>
+                <input id="range" class="rad" type="radio" name="action" value="shoot">
+                <label for="range" class="res">SHOOT 🎯</label>
+                <input id="defend" class="rad" type="radio" name="action" value="defend">
+                <label for="defend" class="res">DEFEND 🥅</label>
+                <br>
+                <h3>
+                    {% if player.action == "hit" %}
+                    🥊
+                    {% elif player.action == "move" %}
+                    💨
+                    {% elif player.action == "shoot" %}
+                    🎯
+                    {% else %}
+                    🥅
+                    {% endif %}
+                    {{ player.name }}
+                </h3>
+                {% for group in group %}
+                    <h3>
+                    {% if group.action == "hit" %}
+                    🥊
+                    {% elif group.action == "move" %}
+                    💨
+                    {% elif group.action == "shoot" %}
+                    🎯
+                    {% else %}
+                    🥅
+                    {% endif %}
+                    {{ group.name }}
+                    </h3>
+                {% endfor %}
+            </form>
+            <h2>LAST : Click on the tale on which the action should happen</h2>
+        </span>
+    {% else %}
+        <span class="infos">
+            <h1>Enemies turn...</h1>
+        </span>
+    {% endif %}
+    
+        <section id="fight">
+            
+            {% for ff in ff|dictsort:"x"|dictsort:"y" %}
+                <form id="field" action="" method="post">
+                {% csrf_token %}
+                    <input class="coo" type="number" name="x" value="{{ ff.x }}">
+                    <input class="coo" type="number" name="y" value="{{ ff.y }}">
+                    {% if ff.char in enem %}
+                        <input id="go" style="grid-column:{{ ff.x }};grid-row:{{ ff.y }}" type="submit" value="👹">
+                    {% elif ff.char != 0 %}
+                        <input id="go" style="grid-column:{{ ff.x }};grid-row:{{ ff.y }}" type="submit" value="🥋">
+                    {% else %}
+                        <input id="go" style="grid-column:{{ ff.x }};grid-row:{{ ff.y }}" type="submit" value="">
+                    {% endif %}
+                </form>  
+            {% endfor %}
+        </section>
+</body>
+</html>
